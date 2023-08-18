@@ -242,7 +242,9 @@ impl MAVLinkV1MessageRaw {
     const HEADER_SIZE: usize = 5;
 
     pub const fn new() -> Self {
-        Self([0; 1 + Self::HEADER_SIZE + 255 + 2])
+        let mut buf = [ 0; 1 + Self::HEADER_SIZE + 255 + 2];
+        buf[0] = MAV_STX;
+        Self(buf)
     }
 
     #[inline]
@@ -251,7 +253,7 @@ impl MAVLinkV1MessageRaw {
     }
 
     #[inline]
-    fn mut_header(&mut self) -> &mut [u8] {
+    pub fn mut_header(&mut self) -> &mut [u8] {
         &mut self.0[1..=Self::HEADER_SIZE]
     }
 
@@ -296,7 +298,7 @@ impl MAVLinkV1MessageRaw {
     }
 
     #[inline]
-    fn mut_payload_and_checksum(&mut self) -> &mut [u8] {
+    pub fn mut_payload_and_checksum(&mut self) -> &mut [u8] {
         let payload_length: usize = self.payload_length().into();
         &mut self.0[(1 + Self::HEADER_SIZE)..(1 + Self::HEADER_SIZE + payload_length + 2)]
     }
@@ -431,7 +433,9 @@ impl MAVLinkV2MessageRaw {
     const SIGNATURE_SIZE: usize = 13;
 
     pub const fn new() -> Self {
-        Self([0; 1 + Self::HEADER_SIZE + 255 + 2 + Self::SIGNATURE_SIZE])
+        let mut buf = [ 0; 1 + Self::HEADER_SIZE + 255 + 2 + Self::SIGNATURE_SIZE];
+        buf[0] = MAV_STX_V2;
+        Self(buf)
     }
 
     #[inline]
@@ -440,7 +444,7 @@ impl MAVLinkV2MessageRaw {
     }
 
     #[inline]
-    fn mut_header(&mut self) -> &mut [u8] {
+    pub fn mut_header(&mut self) -> &mut [u8] {
         &mut self.0[1..=Self::HEADER_SIZE]
     }
 
@@ -494,7 +498,7 @@ impl MAVLinkV2MessageRaw {
         ])
     }
 
-    fn mut_payload_and_checksum_and_sign(&mut self) -> &mut [u8] {
+    pub fn mut_payload_and_checksum_and_sign(&mut self) -> &mut [u8] {
         let payload_length: usize = self.payload_length().into();
 
         // Signature to ensure the link is tamper-proof.
